@@ -2,7 +2,7 @@ import time
 import streamlit as st
 
 from openai import OpenAI # API 통신용 모듈 
-from constant import CHATBOT_ROLE, CHATBOT_MESSAGE
+from .constant import CHATBOT_ROLE, CHATBOT_MESSAGE
 
 # @st.cache_data # 데이터를 caching 처리 
 @st.cache_resource # 객체를 caching 처리 
