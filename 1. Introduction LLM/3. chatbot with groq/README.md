@@ -9,12 +9,11 @@ style: |
 marp: true
 paginate: true
 ---
-# OpenAI를 이용한 Chatbot 예제 
+# Groq를 이용한 Chatbot 예제 
 
-- [OpenAI](https://openai.com/)
-  - 오픈AI는 프렌들리 AI를 제고하고 개발함으로써 전적으로 인류에게 이익을 주는 것을 목표로 하는 미국의 인공지능 연구소이다. 
-  - 이윤을 목적으로 하는 기업 OpenAI LP와 그 모체 조직인 비영리 단체 OpenAI Inc로 구성되어 있다.
-
+- [Groq](https://groq.com/) 
+  - Groq는 Python과 JavaScript/Typescript 클라이언트 라이브러리를 모두 제공합니다.
+  - Groq Python 라이브러리는 Python 3.7 이상 애플리케이션에서 Groq REST API에 편리하게 액세스할 수 있도록 합니다.
 
 ---
 ## 가상환경

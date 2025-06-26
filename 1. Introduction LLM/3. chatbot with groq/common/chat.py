@@ -1,15 +1,15 @@
 import time
 import streamlit as st
 
-from openai import OpenAI # API 통신용 모듈 
-from constant import CHATBOT_ROLE, CHATBOT_MESSAGE
+from groq import Groq # API 통신용 모듈 
+from .constant import CHATBOT_ROLE, CHATBOT_MESSAGE
 
 # @st.cache_data # 데이터를 caching 처리 
 @st.cache_resource # 객체를 caching 처리 
 def get_client():
-    return OpenAI()
+    return Groq()
 
-def response_from_llm(prompt, message_history=[], model_id:str="gpt-4o-mini"):
+def response_from_llm(prompt, message_history=[], model_id:str="gemma2-9b-it"):
     if len(message_history) == 0:
         # 최초 질문
         message_history.append(
