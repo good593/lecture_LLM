@@ -9,18 +9,19 @@ from .constant import CHATBOT_ROLE, CHATBOT_MESSAGE
 def get_client():
     return OpenAI()
 
-def response_from_llm(prompt, message_history=[], model_id:str="gpt-4o-mini"):
-    if len(message_history) == 0:
-        # 최초 질문
-        message_history.append(
-            {
-                CHATBOT_MESSAGE.role.name: CHATBOT_ROLE.assistant.name, 
-                CHATBOT_MESSAGE.content.name: "You are a helpful assistant. You must answer in Korean.",
-            }
-        )
+def response_from_llm(prompt, message_history=None, model_id:str="gpt-4o-mini"):
+    messages = [
+        {
+            CHATBOT_MESSAGE.role.name: CHATBOT_ROLE.assistant.name, 
+            CHATBOT_MESSAGE.content.name: "You are a helpful assistant. You must answer in Korean.",
+        }
+    ]
+
+    if isinstance(message_history, list):
+        messages += message_history
 
     # 사용자 질문 추가
-    message_history.append(
+    messages.append(
         {
             CHATBOT_MESSAGE.role.name: CHATBOT_ROLE.user.name,
             CHATBOT_MESSAGE.content.name: prompt,
@@ -29,7 +30,7 @@ def response_from_llm(prompt, message_history=[], model_id:str="gpt-4o-mini"):
 
     streaming = get_client().chat.completions.create(
         model=model_id,
-        messages=message_history,
+        messages=messages,
         stream=True
     )
 

@@ -1,15 +1,10 @@
 import time
-import streamlit as st
 
-from groq import Groq # API 통신용 모듈 
+import ollama
 from .constant import CHATBOT_ROLE, CHATBOT_MESSAGE
 
-# @st.cache_data # 데이터를 caching 처리 
-@st.cache_resource # 객체를 caching 처리 
-def get_client():
-    return Groq()
 
-def response_from_llm(prompt, message_history=None, model_id:str="gemma2-9b-it"):
+def response_from_llm(prompt, message_history=None, model_id="gemma3-diseases"):
     messages = [
         {
             CHATBOT_MESSAGE.role.name: CHATBOT_ROLE.assistant.name, 
@@ -28,7 +23,7 @@ def response_from_llm(prompt, message_history=None, model_id:str="gemma2-9b-it")
         },
     )
 
-    streaming = get_client().chat.completions.create(
+    streaming = ollama.chat(
         model=model_id,
         messages=messages,
         stream=True
@@ -36,8 +31,8 @@ def response_from_llm(prompt, message_history=None, model_id:str="gemma2-9b-it")
 
     # return streaming.choices[0].message.content
     for chunk in streaming:
-        if chunk.choices[0].delta.content is not None:
-            yield chunk.choices[0].delta.content
+        if chunk["message"]["content"] is not None:
+            yield chunk["message"]["content"]
             time.sleep(0.05)
 
 

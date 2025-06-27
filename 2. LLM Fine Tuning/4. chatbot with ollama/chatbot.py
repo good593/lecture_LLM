@@ -1,7 +1,4 @@
 import os 
-from dotenv import load_dotenv
-# .env 파일에 등록된 변수(데이터)를 os 환경변수에 적용
-load_dotenv()
 
 from common.constant import CHATBOT_ROLE, CHATBOT_MESSAGE
 from common.message import create_message
@@ -10,7 +7,7 @@ from common.chat import response_from_llm
 # web ui/ux
 import streamlit as st
 
-st.title("Chat Bot")
+st.title("소아과 질병 전문의 챗봇")
 
 # 메세지를 저장 
 # messages = {"role":"", "content":""}
@@ -37,14 +34,10 @@ if prompt:
         with st.chat_message(CHATBOT_ROLE.user.name):
             st.write(prompt)
         
-            # 이력 추가 
-            # message = {"role":"", "content":""}
             st.session_state.messages.append(message)
 
         # 챗봇 답변 
         with st.chat_message(CHATBOT_ROLE.assistant.name):
-            # assistant_response = response_from_llm(prompt)
-            # st.markdown(assistant_response)
             assistant_response = st.write_stream(response_from_llm(prompt=prompt, message_history=st.session_state.messages))
 
             # 이력 추가 

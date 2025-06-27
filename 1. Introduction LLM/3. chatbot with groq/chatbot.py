@@ -37,9 +37,9 @@ if prompt:
         with st.chat_message(CHATBOT_ROLE.user.name):
             st.write(prompt)
         
-        # 이력 추가 
-        # message = {"role":"", "content":""}
-        st.session_state.messages.append(message)
+            # 이력 추가 
+            # message = {"role":"", "content":""}
+            st.session_state.messages.append(message)
 
         # 챗봇 답변 
         with st.chat_message(CHATBOT_ROLE.assistant.name):
@@ -47,6 +47,6 @@ if prompt:
             # st.markdown(assistant_response)
             assistant_response = st.write_stream(response_from_llm(prompt=prompt, message_history=st.session_state.messages))
 
-        # 이력 추가 
-        st.session_state.messages.append(
-            create_message(role=CHATBOT_ROLE.assistant, prompt=assistant_response))
+            # 이력 추가 
+            st.session_state.messages.append(
+                create_message(role=CHATBOT_ROLE.assistant, prompt=assistant_response))
