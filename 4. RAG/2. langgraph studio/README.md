@@ -1,0 +1,2 @@
+- https://langchain-ai.github.io/langgraph/tutorials/langgraph-platform/local-server/
+- https://github.com/langchain-ai/new-langgraph-project/tree/main
