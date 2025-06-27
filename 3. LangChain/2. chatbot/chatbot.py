@@ -3,7 +3,6 @@ import streamlit as st
 from common.screen.history import add_history
 from common.screen.display import print_message
 from common.screen.input import get_prompt
-from common.llm.call_provider import get_response_from_llm, PROVIDER_TYPE
 from common.screen.constant import ROLE_TYPE
 from common.screen.utils import init_page, init_display
 
@@ -11,7 +10,7 @@ def app():
   st.title("Chatbot")
 
   # 화면 초기화  
-  choiced_provider, choiced_llm = init_display()
+  provider = init_display()
   # 사용자 입력
   prompt = get_prompt()
 
@@ -22,10 +21,7 @@ def app():
     print_message(ROLE_TYPE.user.name, prompt)
     
     # AI 응답 요청
-    generator = get_response_from_llm(
-        choiced_provider=PROVIDER_TYPE[choiced_provider].value[1]() # Provider 인스턴스화
-        , messages=st.session_state.messages
-        , llm_name=choiced_llm)
+    generator = provider()
     # AI 응답 표시
     assistant_message = print_message(
       ROLE_TYPE.assistant.name

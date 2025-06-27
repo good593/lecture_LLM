@@ -1,10 +1,26 @@
-import enum
+import time
+import streamlit as st
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+from common.screen.constant import ROLE_TYPE, HISTORY_INFO
 
 class Provider:
-  def __init__(self, provider_LLMs:enum.Enum) -> None:
-    self.provider_LLMs = provider_LLMs # provider가 제공하는 모델 리스트 
-  # 호출함수 역할
-  def __call__(self, 
-      model_name, messages):
-    pass
 
+  def __call__(self):
+    
+    prompts = [] 
+    for msg in st.session_state.messages[:-1]:
+      prompts.append(tuple(msg.values()))
+      
+    prompts += [(ROLE_TYPE.user.name, "{user_input}")] # 사용자의 메세지 입력 프론프트
+    chat_prompt = ChatPromptTemplate.from_messages(prompts)
+
+    # 체인 생성
+    chain = chat_prompt | self.model | StrOutputParser()
+
+    # 모델 답변 
+    for token in chain.stream({"user_input": st.session_state.messages[-1][HISTORY_INFO.content.name]}):
+      yield token
+      time.sleep(0.05) 

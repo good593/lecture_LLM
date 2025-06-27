@@ -1,7 +1,7 @@
 import streamlit as st
-from common.llm.openai import OPENAI_LLMs
-from common.llm.llama import GROQ_LLMs
+
 from common.llm.call_provider import PROVIDER_TYPE
+
 
 def choice_provider():
   choiced_provider = st.sidebar.selectbox(
@@ -11,10 +11,6 @@ def choice_provider():
 
   return choiced_provider
 
-def get_prompt():
-  return st.chat_input("무엇이든지 물어봐주세요.")
-
-
 def choice_llms(choiced_provider:str):
   choiced_llm = st.sidebar.selectbox(
     label="모델을 선택해주세요.",
@@ -23,3 +19,5 @@ def choice_llms(choiced_provider:str):
 
   return choiced_llm
 
+def get_prompt():
+  return st.chat_input("무엇이든지 물어봐주세요.")

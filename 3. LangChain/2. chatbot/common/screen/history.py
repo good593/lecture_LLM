@@ -1,10 +1,10 @@
 import streamlit as st 
-from common.screen.constant import ROLE_TYPE, HISTORY_INFO
+from .constant import ROLE_TYPE, HISTORY_INFO
 
 # 히스토리 초기화 
 def init_history(is_clear:bool=False):
   if is_clear:
-    st.session_state.messages = []
+    st.session_state.messages = [] # 초기화!!!
   elif "messages" not in st.session_state: # session_state에 messages라는 키가 없다면, 
     # messages 이름으로 리스트 데이터 기억하기!
     st.session_state.messages = [] # 초기화!!! 
