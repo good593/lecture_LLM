@@ -9,8 +9,8 @@ from __future__ import annotations
 from langgraph.graph import START, END
 from langgraph.graph import StateGraph
 
-from src.states import State
-from src.nodes import len_str, add_one, add_two
+from common.langgraph.states import State
+from common.langgraph.nodes import len_str, add_one, add_two
 
 def __add_nodes(simple_graph:StateGraph):
   simple_graph.add_node(
@@ -59,13 +59,11 @@ def __add_edge(simple_graph:StateGraph):
   )
 
 
-def main():
-  simple_graph = StateGraph(State)
+def get_graph():
+  workflow = StateGraph(State)
 
-  __add_nodes(simple_graph)
-  __add_edge(simple_graph)
+  __add_nodes(workflow)
+  __add_edge(workflow)
 
-  return simple_graph.compile()
-
-graph = main()
+  return workflow.compile()
 
