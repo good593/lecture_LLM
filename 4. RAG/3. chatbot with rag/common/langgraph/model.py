@@ -1,32 +1,35 @@
-
-from typing import Literal
-from langchain import hub
-from langchain_core.messages import HumanMessage
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
+
 from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import tools_condition
+from langchain_core.output_parsers import StrOutputParser
 
-# 최신 모델이름 가져오기
-MODEL_NAME = "gpt-4o-mini"
+from .prompt import get_prompt_of_evaluation, get_prompt_of_generation, get_prompt_of_web_search
+from .tools import get_web_search
 
-
-# 데이터 모델 정의
-class grade(BaseModel):
-    """A binary score for relevance checks"""
-
-    binary_score: str = Field(
-        description="Response 'yes' if the document is relevant to the question or 'no' if it is not."
-    )
-
-def get_model_of_relevance(model_name = "gpt-4o-mini"):
-    model = ChatOpenAI(temperature=0, model=model_name, streaming=True)
-
-    # 구조화된 출력을 위한 LLM 설정
-    return model.with_structured_output(grade)
+def get_model(name="gpt-4o-mini"):
+  return ChatOpenAI(model=name, temperature=0)
 
 
-def get_model(model_name = "gpt-4o-mini"):
-    return ChatOpenAI(temperature=0, model=model_name, streaming=True)
+class Answer_of_evaluation(BaseModel):
+  """A binary score to determine the relevance of the retrieved documents."""
+
+  # 문서가 질문에 관련이 있는지 여부를 'yes' 또는 'no'로 나타내는 필드
+  binary_score: str = Field(
+      description="Documents are relevant to the question, 'yes' or 'no'"
+  )
+
+def get_model_of_evaluation():
+  llm = get_model().with_structured_output(Answer_of_evaluation)
+
+  return get_prompt_of_evaluation() | llm
+
+
+def get_model_of_generation():
+  return get_prompt_of_generation() | get_model() | StrOutputParser()
+
+
+def get_model_of_web_search():
+  llm = get_model("gpt-4o")
+  return get_prompt_of_web_search() | llm.bind_tools([get_web_search()]) | StrOutputParser()
+  
 

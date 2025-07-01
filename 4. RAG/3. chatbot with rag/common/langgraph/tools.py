@@ -1,23 +1,13 @@
-
-from langchain_core.tools.retriever import create_retriever_tool
-from langchain_core.prompts import PromptTemplate
-
-from common.rag.retriever import get_retriever
-
-def get_retriever_tool():
-  return create_retriever_tool(
-    get_retriever(),
-    "pdf_retriever",
-    """
-      Search and return information about SPRI AI Brief PDF file.
-      It contains useful information on recent AI trends.
-      The document is published on Dec 2023.
-    """,
-    document_prompt=PromptTemplate.from_template(
-        "<document><context>{page_content}</context><metadata><source>{source}</source><page>{page}</page></metadata></document>"
-    ),
-)
+from langchain_community.tools import TavilySearchResults
 
 
+def get_web_search():
+    # 최대 검색 결과를 3으로 설정
+    return TavilySearchResults(
+        max_results=5,
+        include_answer=True,
+        include_raw_content=True,
+        include_domains=["github.io", "wikidocs.net"]
+    )
 
 

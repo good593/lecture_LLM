@@ -1,6 +1,6 @@
 from src.states import State
 
-async def len_str(state:State) -> State:
+def len_str(state:State) -> State:
     input = state["input"]
     result = len(input)
     return {
@@ -8,7 +8,7 @@ async def len_str(state:State) -> State:
         "is_stop":False
     }
 
-async def add_one(state:State) -> State:
+def add_one(state:State) -> State:
     input = state["node_ouput"]
     is_stop = state["is_stop"]
 
@@ -22,7 +22,7 @@ async def add_one(state:State) -> State:
         "is_stop": is_stop
     }
 
-async def add_two(state:State) -> State:
+def add_two(state:State) -> State:
     input = state["node_ouput"]
     result = input + 2
     return {

@@ -1,76 +1,60 @@
-from typing import Literal
-from langchain_core.messages import HumanMessage
 
-from common.langgraph.states import AgentState
-from common.langgraph.model import get_model_of_relevance, get_model
-from common.langgraph.prompt import get_prompt_of_relevance
-from common.langgraph.tools import get_retriever_tool
+from langgraph.prebuilt import create_react_agent
 
-async def grade_documents(state:AgentState) -> Literal["generate", "rewrite"]:
-  # llm + tool 바인딩 체인 생성
-  chain = get_prompt_of_relevance() | get_model_of_relevance()
+from common.langgraph.states import State
+from common.langgraph.model import get_model_of_generation, get_model_of_evaluation, get_model_of_web_search
+from common.rag.retriever import VectorDB
 
-  # 현재 상태에서 메시지 추출
-  messages = state["messages"]
+# 문서 검색
+def retrieve_of_reg(state:State):
+    print("==== [RETRIEVE] ====")
+    question = state["question"]
 
-  # 관련성 평가 실행
-  scored_result = chain.invoke({
-          # 원래 질문 추출
-          "question": messages[0].content, 
-          # 검색된 문서 추출
-          "context": messages[-1].content
-      })
+    # 검색 수행
+    documents = VectorDB().get_retriever().invoke(question)
+    return {"documents": documents}
 
-  # 관련성 여부에 따른 결정
-  if scored_result.binary_score == "yes":
-      print("==== [DECISION: DOCS RELEVANT] ====")
-      return "generate"
+# 답변 생성
+def generate_of_reg(state:State):
+    print("==== [GENERATE] ====")
+    question = state["question"]
+    documents = state["documents"]
 
-  print("==== [DECISION: DOCS NOT RELEVANT] ====")
-  print(scored_result.binary_score)
-  return "rewrite"
+    # RAG 생성
+    generation = get_model_of_generation().invoke({"context": documents, "question": question})
+    print(f"generation: {generation}")
+    return {"generation": generation}
 
-async def agent(state:AgentState):
-    # 현재 상태에서 메시지 추출
-    messages = state["messages"]
 
-    # LLM 모델 초기화
-    model = get_model().bind_tools([get_retriever_tool()])
+# 검색된 문서의 관련성 평가
+def evaluate_of_reg(state:State):
+    print("==== [GRADE DOCUMENTS] ====")
+    question = state["question"]
+    documents = state["documents"]
 
-    # 에이전트 응답 생성
-    response = model.invoke(messages)
-
-    # 기존 리스트에 추가되므로 리스트 형태로 반환
-    return {"messages": [response]}
-
-async def rewrite(state:AgentState):
-    print("==== [QUERY REWRITE] ====")
-    # 현재 상태에서 메시지 추출
-    messages = state["messages"]
-    # 원래 질문 추출
-    question = messages[0].content
-
-    # 질문 개선을 위한 프롬프트 구성
-    msg = [
-        HumanMessage(
-            content=f""" \n
-                Look at the input and try to reason about the underlying semantic intent / meaning. \n
-                Here is the initial question:
-                \n ------- \n
-                {question}
-                \n ------- \n
-                Formulate an improved question: """,
+    # 각 문서 점수 평가
+    filtered_docs = []
+    for d in documents:
+        score = get_model_of_evaluation().invoke(
+            {"question": question, "document": d.page_content}
         )
-    ]
-
-    # LLM 모델로 질문 개선
-    model = get_model()
-    # Query-Transform 체인 실행
-    response = model.invoke(msg)
-
-    # 재작성된 질문 반환
-    return {"messages": [response]}
-
+        grade = score.binary_score
+        if grade == "yes":
+            print("==== GRADE: DOCUMENT RELEVANT ====")
+            filtered_docs.append(d)
+        else:
+            print("==== GRADE: DOCUMENT NOT RELEVANT ====")
+            continue
+    return {"documents": filtered_docs}
 
 
+def web_search(state:State):
+    question = state["question"]
+
+    generation = get_model_of_web_search().invoke(
+            {"question": question}
+        )
+    
+    print(f"generation: {generation}")
+    return {"generation": generation}
 

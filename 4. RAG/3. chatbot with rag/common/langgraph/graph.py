@@ -1,69 +1,48 @@
-"""LangGraph single-node graph template.
 
-Returns a predefined response. Replace logic and configuration as needed.
-"""
-
-from __future__ import annotations
-
-
-from langgraph.graph import START, END
-from langgraph.graph import StateGraph
+from langgraph.graph import END, StateGraph, START
 
 from common.langgraph.states import State
-from common.langgraph.nodes import len_str, add_one, add_two
+from common.langgraph.nodes import retrieve_of_reg, generate_of_reg, evaluate_of_reg, web_search
 
-def __add_nodes(simple_graph:StateGraph):
-  simple_graph.add_node(
-      "len_str", len_str
-  )
+# 답변 생성 여부 결정
+def decide_to_generate(state:State):
+    print("==== [ASSESS GRADED DOCUMENTS] ====")
+    state["question"]
+    filtered_documents = state["documents"]
 
-  simple_graph.add_node(
-      "add_one", add_one
-  )
-
-  simple_graph.add_node(
-      "add_two", add_two
-  )
-
-def __is_stop_fnc(state: State) -> str:
-    is_stop = state["is_stop"]
-    if is_stop:
-        return "go_stop"
+    if not filtered_documents:
+        return "web_search"
     else:
-        return "go_to_add_two_fnc"
-
-def __add_edge(simple_graph:StateGraph):
-  simple_graph.add_edge(
-      START ,      # 시작 노드
-      "len_str"    # 끝 노드
-  )
-
-  simple_graph.add_edge(
-      "len_str",  # 시작 노드
-      "add_one"   # 끝 노드
-  )
-
-  simple_graph.add_edge(
-      "add_two",    # 시작 노드
-      "add_one"     # 끝 노드
-  )
-
-  simple_graph.add_conditional_edges(
-      "add_one",  # 시작 노드
-      __is_stop_fnc,    # 어떤 노드로 전달할지 정의된 함수
-      # 끝 노드
-      {
-          "go_to_add_two_fnc":"add_two",
-          "go_stop":END
-      }
-  )
+        # 관련 문서가 있는 경우 답변 생성
+        print("==== [DECISION: GENERATE] ====")
+        return "generate"
 
 
 def get_graph():
-  workflow = StateGraph(State)
+    workflow = StateGraph(State)
 
-  __add_nodes(workflow)
-  __add_edge(workflow)
+    workflow.add_node("retrieve", retrieve_of_reg)
+    workflow.add_node("evaluate", evaluate_of_reg)
+    workflow.add_node("generate", generate_of_reg)
+    workflow.add_node("web_search", web_search)
 
-  return workflow.compile()
+    # 엣지 정의
+    workflow.add_edge(START, "retrieve")
+    workflow.add_edge("retrieve", "evaluate")
+    workflow.add_edge("web_search", END)
+    workflow.add_edge("generate", END)
+
+    # 문서 평가 노드에서 조건부 엣지 추가
+    workflow.add_conditional_edges(
+        "evaluate",
+        decide_to_generate,
+        {
+            "web_search": "web_search",
+            "generate": "generate",
+        },
+    )
+
+    return workflow.compile()
+
+
 
