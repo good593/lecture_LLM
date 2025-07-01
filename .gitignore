@@ -11,6 +11,9 @@ __pycache__
 .vscode
 .env
 
+# 제외 
+!.env.example
+
 # mac
 Icon
 .DS_Store
