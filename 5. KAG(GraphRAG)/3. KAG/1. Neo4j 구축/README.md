@@ -29,13 +29,7 @@ paginate: true
 - 리뷰 텍스트 (Text)
 
 ---
-# Neo4j AuraDB 구축 
 
----
-### [단계1:접속](https://neo4j.com/product/auradb/)
-![alt text](image-1.png)
-
----
 
 
 
